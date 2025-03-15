@@ -158,7 +158,7 @@ condition:
           - condition: state
             entity_id: !input trigger_input
             match: any
-            state: 'on'
+            state: 'open'
       - condition: and # trigger from on to off
         conditions:
           - condition: trigger
@@ -167,7 +167,7 @@ condition:
           - condition: state
             entity_id: !input trigger_input
             match: all
-            state: 'off'
+            state: 'closed'
           - condition: state
             entity_id: !input timer_helper
             state: 'active'
@@ -185,7 +185,7 @@ condition:
           - condition: state
             entity_id: !input trigger_input
             match: any
-            state: 'off'
+            state: 'closed'
       - condition: and # trigger from off to on
         conditions:
           - condition: trigger
@@ -194,7 +194,7 @@ condition:
           - condition: state
             entity_id: !input trigger_input
             match: all
-            state: 'on'
+            state: 'open'
           - condition: state
             entity_id: !input timer_helper
             state: 'active'
@@ -233,7 +233,7 @@ action:
                   value_template: "{{include_trigger_sync == 'enable_trigger_sync'}}"
               sequence:
                 - alias: "Turn ON the entities"
-                  service: homeassistant.turn_on
+                  service: cover.open_cover
                   entity_id: !input trigger_input
           - alias: "Turn ON the timer helper"
             service: timer.start
@@ -257,7 +257,7 @@ action:
                   value_template: "{{include_trigger_sync == 'enable_trigger_sync'}}"
               sequence:
                 - alias: "Turn ON the entities"
-                  service: homeassistant.turn_on
+                  service: cover.open_cover
                   entity_id: !input trigger_input
           - alias: "Wait for the time that has been set"
             delay: 
@@ -265,7 +265,7 @@ action:
               minutes: !input time_minutes 
               seconds: !input time_seconds
           - alias: "Turn OFF the entities"
-            service: homeassistant.turn_off
+            service: cover.close_cover
             entity_id: !input trigger_input
       - alias: "Check if the time helper is enabled"
         conditions:
@@ -281,7 +281,7 @@ action:
                   value_template: "{{include_trigger_sync == 'enable_trigger_sync'}}"
               sequence:
                 - alias: "Turn OFF the entities"
-                  service: homeassistant.turn_off
+                  service: cover.close_cover
                   entity_id: !input trigger_input
           - alias: "Turn ON the timer helper"
             service: timer.start
@@ -305,7 +305,7 @@ action:
                   value_template: "{{include_trigger_sync == 'enable_trigger_sync'}}"
               sequence:
                 - alias: "Turn OFF the entities"
-                  service: homeassistant.turn_off
+                  service: cover.close_cover
                   entity_id: !input trigger_input
           - alias: "Wait for the time that has been set"
             delay: 
@@ -313,7 +313,7 @@ action:
               minutes: !input time_minutes 
               seconds: !input time_seconds
           - alias: "Turn ON the entities"
-            service: homeassistant.turn_on
+            service: cover.open_cover
             entity_id: !input trigger_input
   - choose:
       - alias: "Check if the time helper is enabled and cancel it"
@@ -336,7 +336,7 @@ action:
           - "{{ trigger_entity_state == 'trigger_state_on' }}"
         sequence:
           - alias: "Turn OFF the entities"
-            service: homeassistant.turn_off
+            service: cover.close_cover
             entity_id: !input trigger_input
           - choose:
               - alias: "Check if the time helper is enabled"
@@ -355,7 +355,7 @@ action:
           - "{{ trigger_entity_state == 'trigger_state_off' }}"
         sequence:
           - alias: "Turn ON the entities"
-            service: homeassistant.turn_on
+            service: cover.open_cover
             entity_id: !input trigger_input
           - choose:
               - alias: "Check if the time helper is enabled"
@@ -373,7 +373,7 @@ action:
           - "{{ trigger_entity_state == 'trigger_state_on' }}"
         sequence:
           - alias: "Turn OFF the entities"
-            service: homeassistant.turn_off
+            service: cover.close_cover
             entity_id: !input trigger_input
       - alias: "Turn ON entities after the timer helper is finished"
         conditions:
@@ -383,7 +383,7 @@ action:
           - "{{ trigger_entity_state == 'trigger_state_off' }}"
         sequence:
           - alias: "Turn ON the entities"
-            service: homeassistant.turn_on
+            service: cover.open_cover
             entity_id: !input trigger_input
   - choose:
       - alias: "HA Restart"
@@ -398,7 +398,7 @@ action:
               minutes: !input time_minutes
               seconds: !input time_seconds
           - alias: "Turn OFF the entities"
-            service: homeassistant.turn_off
+            service: cover.close_cover
             entity_id: !input trigger_input
       - alias: "HA Restart"
         conditions:
@@ -412,5 +412,5 @@ action:
               minutes: !input time_minutes
               seconds: !input time_seconds
           - alias: "Turn OFF the entities"
-            service: homeassistant.turn_on
+            service: cover.open_cover
             entity_id: !input trigger_input
