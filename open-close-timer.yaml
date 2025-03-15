@@ -1,7 +1,7 @@
-blueprint:
+iblueprint:
   name: Entity - Run ON Timer
   description: >
-    **If you like my blueprints, and would like to show your support or just say thank you?** [Click Here](https://www.paypal.com/donate/?hosted_button_id=WAZS3QSDTPGA8) 🙂
+    description
   domain: automation
   input:
     trigger_entity_state:
@@ -19,17 +19,17 @@ blueprint:
               value: "trigger_state_close"
     trigger_input:
       name: Trigger - Entities *
-      description: Select the entities that will be turned ON or OFF in the below pre-set time period.
+      description: Select the entities that will be OPENED or CLOSED in the below pre-set time period.
         
         
-        **Note** - All entities must have an ON and OFF state.
+        **Note** - All entities must have an OPEN and CLOSE state.
       selector:
         entity:
           multiple: true
     include_trigger_sync:
       name: The Trigger Entity Sync Option (Optional)
-      description: Select this option if you would like all the entities to be turned ON or OFF in sync together.
-        Example - If more than one entity is selected then they will turn ON & OFF in sync together automatically.
+      description: Select this option if you would like all the entities to be CLOSED or OPENED in sync together.
+        Example - If more than one entity is selected then they will be turned CLOSED & OPENED in sync together automatically.
       default: disable_trigger_sync
       selector:
         select:
@@ -110,33 +110,33 @@ trigger:
   - platform: state
     id: "t1_start"
     entity_id: !input trigger_input
-    from: 'off'
-    to: 'on'
+    from: 'closed'
+    to: 'open'
   - platform: state
     id: "t1_end"
     entity_id: !input trigger_input
-    from: 'on'
-    to: 'off'
+    from: 'open'
+    to: 'closed'
   - platform: state
     id: "t1_synced"
     entity_id: !input trigger_input
-    from: 'on'
-    to: 'off'
+    from: 'open'
+    to: 'closed'
   - platform: state
     id: "t2_start"
     entity_id: !input trigger_input
-    from: 'on'
-    to: 'off'
+    from: 'open'
+    to: 'closed'
   - platform: state
     id: "t2_end"
     entity_id: !input trigger_input
-    from: 'off'
-    to: 'on'
+    from: 'closed'
+    to: 'open'
   - platform: state
     id: "t2_synced"
     entity_id: !input trigger_input
-    from: 'off'
-    to: 'on'
+    from: 'closed'
+    to: 'open'
   - platform: state
     entity_id: !input timer_helper
     to: "idle"
