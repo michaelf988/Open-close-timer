@@ -1,7 +1,7 @@
 blueprint:
-  name: Entity - Run ON Timer
+  name: Cover - Run Open and Close Timer
   description: >
-    description
+    Opens or closes covers with timer
   domain: automation
   input:
     trigger_entity_state:
@@ -150,20 +150,20 @@ condition:
 #Trigger conditions
   - condition: or
     conditions:
-      - condition: and # trigger from off to on
+      - condition: and # trigger from closed to open
         conditions:
           - condition: trigger
             id: 't1_start'
-          - "{{ trigger_entity_state == 'trigger_state_on' }}"
+          - "{{ trigger_entity_state == 'trigger_state_open' }}"
           - condition: state
             entity_id: !input trigger_input
             match: any
             state: 'open'
-      - condition: and # trigger from on to off
+      - condition: and # trigger from open to closed
         conditions:
           - condition: trigger
             id: 't1_end'
-          - "{{ trigger_entity_state == 'trigger_state_on' }}"
+          - "{{ trigger_entity_state == 'trigger_state_open' }}"
           - condition: state
             entity_id: !input trigger_input
             match: all
@@ -171,26 +171,26 @@ condition:
           - condition: state
             entity_id: !input timer_helper
             state: 'active'
-      - condition: and # trigger sync from on to off
+      - condition: and # trigger sync closed to open
         conditions:
           - condition: trigger
             id: 't1_synced'
-          - "{{ trigger_entity_state == 'trigger_state_on' }}"
+          - "{{ trigger_entity_state == 'trigger_state_open' }}"
           - "{{include_trigger_sync == 'enable_trigger_sync'}}"
-      - condition: and # trigger from on to off
+      - condition: and # trigger from open to closed
         conditions:
           - condition: trigger
             id: 't2_start'
-          - "{{ trigger_entity_state == 'trigger_state_off' }}"
+          - "{{ trigger_entity_state == 'trigger_state_closed' }}"
           - condition: state
             entity_id: !input trigger_input
             match: any
             state: 'closed'
-      - condition: and # trigger from off to on
+      - condition: and # trigger from closed to open
         conditions:
           - condition: trigger
             id: 't2_end'
-          - "{{ trigger_entity_state == 'trigger_state_off' }}"
+          - "{{ trigger_entity_state == 'trigger_state_closed' }}"
           - condition: state
             entity_id: !input trigger_input
             match: all
@@ -198,24 +198,24 @@ condition:
           - condition: state
             entity_id: !input timer_helper
             state: 'active'
-      - condition: and # trigger sync from off to on
+      - condition: and # trigger sync closed to open
         conditions:
           - condition: trigger
             id: 't2_synced'
-          - "{{ trigger_entity_state == 'trigger_state_off' }}"
+          - "{{ trigger_entity_state == 'trigger_state_closed' }}"
           - "{{include_trigger_sync == 'enable_trigger_sync'}}"
       - condition: and # trigger for end timer helper
         conditions:
           - condition: trigger
             id: 't3'
           - "{{include_timer_helper == 'enable_timer_helper'}}"
-          - "{{ ((trigger_entity_state == 'trigger_state_on') and (expand(trigger_input) | selectattr('state', '==', 'on') | list | count > 0)) or ((trigger_entity_state == 'trigger_state_off') and (expand(trigger_input) | selectattr('state', '==', 'off') | list | count > 0)) }}"
+          - "{{ ((trigger_entity_state == 'trigger_state_open') and (expand(trigger_input) | selectattr('state', '==', 'open') | list | count > 0)) or ((trigger_entity_state == 'trigger_state_closed') and (expand(trigger_input) | selectattr('state', '==', 'closed') | list | count > 0)) }}"
       - condition: and # trigger by HA Restart, check if the timer helper is disabled & check if any triggers are on
         conditions:
           - condition: trigger
             id: 't4'
           - "{{include_timer_helper == 'disable_timer_helper'}}"
-          - "{{ ((trigger_entity_state == 'trigger_state_on') and (expand(trigger_input) | selectattr('state', '==', 'on') | list | count > 0)) or ((trigger_entity_state == 'trigger_state_off') and (expand(trigger_input) | selectattr('state', '==', 'off') | list | count > 0)) }}"
+          - "{{ ((trigger_entity_state == 'trigger_state_open') and (expand(trigger_input) | selectattr('state', '==', 'open') | list | count > 0)) or ((trigger_entity_state == 'trigger_state_closed') and (expand(trigger_input) | selectattr('state', '==', 'closed') | list | count > 0)) }}"
 
 action:
   - choose:
@@ -232,7 +232,7 @@ action:
                 - condition: template
                   value_template: "{{include_trigger_sync == 'enable_trigger_sync'}}"
               sequence:
-                - alias: "Turn ON the entities"
+                - alias: "Open the entities"
                   service: cover.open_cover
                   entity_id: !input trigger_input
           - alias: "Turn ON the timer helper"
@@ -256,7 +256,7 @@ action:
                 - condition: template
                   value_template: "{{include_trigger_sync == 'enable_trigger_sync'}}"
               sequence:
-                - alias: "Turn ON the entities"
+                - alias: "Open the entities"
                   service: cover.open_cover
                   entity_id: !input trigger_input
           - alias: "Wait for the time that has been set"
@@ -264,7 +264,7 @@ action:
               hours: !input time_hours
               minutes: !input time_minutes 
               seconds: !input time_seconds
-          - alias: "Turn OFF the entities"
+          - alias: "Close the entities"
             service: cover.close_cover
             entity_id: !input trigger_input
       - alias: "Check if the time helper is enabled"
@@ -280,7 +280,7 @@ action:
                 - condition: template
                   value_template: "{{include_trigger_sync == 'enable_trigger_sync'}}"
               sequence:
-                - alias: "Turn OFF the entities"
+                - alias: "Close the entities"
                   service: cover.close_cover
                   entity_id: !input trigger_input
           - alias: "Turn ON the timer helper"
@@ -304,7 +304,7 @@ action:
                 - condition: template
                   value_template: "{{include_trigger_sync == 'enable_trigger_sync'}}"
               sequence:
-                - alias: "Turn OFF the entities"
+                - alias: "Close the entities"
                   service: cover.close_cover
                   entity_id: !input trigger_input
           - alias: "Wait for the time that has been set"
@@ -312,7 +312,7 @@ action:
               hours: !input time_hours
               minutes: !input time_minutes 
               seconds: !input time_seconds
-          - alias: "Turn ON the entities"
+          - alias: "Open the entities"
             service: cover.open_cover
             entity_id: !input trigger_input
   - choose:
@@ -327,7 +327,7 @@ action:
           - alias: "Cancel the timer helper"
             service: timer.cancel
             entity_id: !input timer_helper
-      - alias: "Check if the trigger entity sync is enabled and trigger state is on"
+      - alias: "Check if the trigger entity sync is enabled and trigger open"
         conditions:
           - condition: trigger
             id:
@@ -354,7 +354,7 @@ action:
               - 't2_synced'
           - "{{ trigger_entity_state == 'trigger_state_off' }}"
         sequence:
-          - alias: "Turn ON the entities"
+          - alias: "Open the entities"
             service: cover.open_cover
             entity_id: !input trigger_input
           - choose:
@@ -372,7 +372,7 @@ action:
               - 't3'
           - "{{ trigger_entity_state == 'trigger_state_on' }}"
         sequence:
-          - alias: "Turn OFF the entities"
+          - alias: "Close the entities"
             service: cover.close_cover
             entity_id: !input trigger_input
       - alias: "Turn ON entities after the timer helper is finished"
@@ -382,7 +382,7 @@ action:
               - 't3'
           - "{{ trigger_entity_state == 'trigger_state_off' }}"
         sequence:
-          - alias: "Turn ON the entities"
+          - alias: "Open the entities"
             service: cover.open_cover
             entity_id: !input trigger_input
   - choose:
@@ -397,7 +397,7 @@ action:
               hours: !input time_hours
               minutes: !input time_minutes
               seconds: !input time_seconds
-          - alias: "Turn OFF the entities"
+          - alias: "Close the entities"
             service: cover.close_cover
             entity_id: !input trigger_input
       - alias: "HA Restart"
